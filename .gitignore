@@ -50,13 +50,15 @@ crashlytics-build.properties
 # OS
 .DS_Store
 
-# Scratch: keep deciders, drop generated
-.scratch/
+# Scratch: keep deciders and tickets, drop generated
+.scratch/*
+!.scratch/kwafee/
+.scratch/kwafee/*
 !.scratch/kwafee/spec.md
 !.scratch/kwafee/DECISIONS.md
 !.scratch/kwafee/EVIDENCE.md
 !.scratch/kwafee/issues/
-!*.scratch/kwafee/issues/
+!.scratch/kwafee/issues/
 
 # Environment
 .env
