@@ -12,6 +12,14 @@ The working decisions of the build. Sessions resume from here; never re-derive s
 - **Theme/name:** KWA FEE, Boston-accent coffee shop, 3-4 players, five verbs (FLING/CHUG/FIX/STEAL/SABOTAGE), shared quota, per-player tips.
 - **Game structure:** 3-4 min shifts, CATASTROPHE REPLAY, awards, tabloid, upgrades.
 
+## Model routing (verified 2026-09-09, applied to ~/.omp/agent/config.yml)
+
+- BUILDER tier: `openrouter/deepseek/deepseek-v4-flash-0731` — default, task, smol, tiny, commit, vision, designer, advisor. Cheap coding.
+- RATER / complex tier: `openai-codex/gpt-6-astra` — `slow` and `plan` roles only. Codex subscription OAuth stored in omp (`auth_credentials` provider `openai-codex`), canonical model id `gpt-6-astra` (verified in `~/.codex/models_cache.json`).
+- Advisor kept on flash deliberately: advisory volume would torch the astra budget; deep judgment lands on `slow`/`plan`.
+- Verification step: first cold start, open the model picker (`/model`) and confirm `openai-codex/gpt-6-astra` resolves. If the openai-codex catalog lacks it yet, pick astra there or fall back to `openrouter/openai/gpt-6-astra`/zenmux line, and note the change here.
+- Pre-change config preserved at `~/.omp/agent/config.yml.bak.2026-09-09` (all-flash baseline; older backup `config.yml.bak` kept).
+
 ## Environmental findings (verified 2026-09-09)
 
 - `blender` CLI on PATH: **Blender 5.2.1 LTS**, `blender -b -P` works. bpy scripts safe.

@@ -119,7 +119,7 @@ Two roles: BUILDER (you) and RATER (a separate adversarial critic persona you in
 
 ## OPS — LIVE WITHIN THIS PROJECT'S BUDGET
 
-Two compute tiers: cheap (BUILDER, DeepSeek V4 Flash) and scarce expensive (RATER, GPT 6 Astra). Budget discipline is a BUILD requirement.
+Two compute tiers: cheap (BUILDER, DeepSeek V4 Flash via `openrouter/deepseek/deepseek-v4-flash-0731`) and scarce expensive (RATER, GPT 6 Astra via `openai-codex/gpt-6-astra` on the codex subscription). The BUILDER session runs on the `default` role (flash); RATER sessions run on the `slow` role (astra). Budget discipline is a BUILD requirement.
 
 - **Asymmetry is the budget.** BUILDER does 95%+ of tokens. RATER reviews rarely, briefly (200 lines). Expensive tier NEVER writes code.
 - **Escalation ladder — never skip a rung:** (1) BUILDER implements. (2) harness runs; numbers asset. (3) BUILD-SELF-REVIEW against spec; fix what it finds. (4) THEN the expensive RATER review — batched, ONE review PER CYCLE, no ping-pong. (5) BUILDER fixes everything in one cheap pass. (6) Repeat until the artifact gate passes.
