@@ -67,15 +67,10 @@ def ice_machine():
     return join(a,[body,door]+cubes+[top])
 def build():
     objs=[cup(),human('Barista','clay_mint','clay_cream',True),human('Customer','clay_pink','clay_cream'),cube('Counter',(0,0,.5),(1.5,.5,.5),'clay_cream'),cube('Floor',(0,0,-.06),(8,6,.06),'clay_cream'),cube('Wall',(0,0,2),(8,.125,2),'clay_cream'),cube('Tray',(0,0,.05),(.7,.4,.05),'plastic_blue',.05),sign(),espresso(),grinder(),steam_wand(),ice_machine()]
-    # Ground every asset on the floor: the exporter bakes the rolling
-    # origin-shift into the mesh, so authored origins must sit at y=0.
-    # Machines (espresso/grinder/steam_wand/ice_machine) are authored with
-    # min.y==0 already; the legacy 8 are recentered here.
-    import mathutils
-    for o in objs:
-        lo_corner_z = min(v.co.z for v in o.data.vertices)
-        if lo_corner_z > 0:  # floor slab and grounded assets keep their authored base; only floaters lower to y=0
-            o.matrix_world = o.matrix_world @ mathutils.Matrix.Translation(mathutils.Vector((0,0,-lo_corner_z)))
+    # NOTE: authored origins ARE the export origins — Counter/Wall/Tray/Barista
+    # are grounded (min.y==0), Floor's top is y=0 (thickness below), and Sign
+    # intentionally HANGS at y 2.05..2.95 on the back wall. Runtime placement
+    # offsets (CoreGame.BuildShop) align these; no art shift is done here.
     bpy.ops.object.select_all(action='DESELECT')
     for o in objs:o.select_set(True)
     bpy.context.view_layer.objects.active=objs[0]
