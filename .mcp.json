@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "blender": {
+      "command": "/Users/albertodesaintmalo/.local/share/mise/installs/uv/0.8.23/uv-aarch64-apple-darwin/uvx",
+      "args": ["blender-mcp"]
+    },
+    "unityMCP": {
+      "command": "/Users/albertodesaintmalo/.local/share/mise/installs/uv/0.8.23/uv-aarch64-apple-darwin/uvx",
+      "args": ["--from", "mcpforunityserver", "mcp-for-unity", "--transport", "stdio"]
+    }
+  }
+}

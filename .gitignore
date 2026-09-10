@@ -1,0 +1,63 @@
+# Unity
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+[Pp]rojectSettings/*.asset_backup
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+sysinfo.txt
+crashlytics-build.properties
+.idea/
+.vs/
+.vscode/
+*.csproj
+*.unity
+*.asset
+*.mat
+*.prefab
+*.fbx
+*.blend
+*.png
+*.jpg
+*.jpeg
+*.glb
+*.gltf
+*.wav
+*.mp3
+*.ogg
+
+# VS Code / IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Scratch: keep deciders, drop generated
+.scratch/
+!.scratch/kwafee/spec.md
+!.scratch/kwafee/DECISIONS.md
+!.scratch/kwafee/EVIDENCE.md
+!.scratch/kwafee/issues/
+!*.scratch/kwafee/issues/
+
+# Environment
+.env
+.env.local
