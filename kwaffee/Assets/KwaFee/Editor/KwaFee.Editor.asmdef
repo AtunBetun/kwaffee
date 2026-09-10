@@ -1,0 +1,14 @@
+{
+  "name": "KwaFee.Editor",
+  "rootNamespace": "KwaFee",
+  "references": ["KwaFee.Runtime"],
+  "includePlatforms": ["Editor"],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
