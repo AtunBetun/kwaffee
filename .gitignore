@@ -55,6 +55,7 @@ crashlytics-build.properties
 !.scratch/kwafee/
 .scratch/kwafee/*
 !.scratch/kwafee/spec.md
+!.scratch/kwafee/PROMPT.md
 !.scratch/kwafee/DECISIONS.md
 !.scratch/kwafee/EVIDENCE.md
 !.scratch/kwafee/issues/
