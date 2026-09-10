@@ -1,19 +1,15 @@
 using UnityEngine;
 
 namespace KwaFee {
-    // A coffee machine: its trigger volume marks it as a FIX/SABOTAGE target
-    // for the player verbs. Health lives in CoreGame (single source of truth);
-    // this component is the scene-side identity + collision surface.
-    [RequireComponent(typeof(MeshCollider))]
+    // A coffee machine. Its static MeshCollider (non-convex, non-trigger) is
+    // a valid environment surface that blocks players and cups; FIX/SABOTAGE
+    // target machines by proximity (CoreGame.NearestMachine), not by this
+    // collider, so it must NOT be a trigger (Unity rejects triggers on
+    // concave MeshColliders). Health lives in CoreGame (single source of
+    // truth); this component is the scene-side identity.
     public sealed class Machine : MonoBehaviour {
         public int Id { get; private set; }
-        CoreGame game;
 
-        public void Configure(CoreGame owner, int id) {
-            game = owner; Id = id;
-            Collider collider = GetComponent<Collider>();
-            if (collider == null) { MeshCollider mesh = gameObject.AddComponent<MeshCollider>(); MeshFilter filter = GetComponent<MeshFilter>(); if (filter != null) mesh.sharedMesh = filter.sharedMesh; collider = mesh; }
-            collider.isTrigger = true;
-        }
+        public void Configure(CoreGame owner, int id) { Id = id; }
     }
 }

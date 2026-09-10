@@ -1,7 +1,7 @@
 ﻿<Solution>
+  <Project Path="KwaFee.EditModeTests.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
   <Project Path="KwaFee.Runtime.csproj" />
-  <Project Path="KwaFee.EditModeTests.csproj" />
   <Project Path="KwaFee.Editor.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
 </Solution>

@@ -22,6 +22,7 @@ namespace KwaFee {
         public void Move(Vector2 direction) { move = Vector2.ClampMagnitude(direction, 1f); }
         public void Aim(Vector3 worldPoint) { Vector3 flat = worldPoint - transform.position; flat.y = 0f; if (flat.sqrMagnitude > .01f) aim = flat.normalized; }
         public void TryGrab() { if (HeldCup == null && !IsStunned) game.TryGrab(this); }
+        public void RestartPosition() { transform.position = spawnPosition; body.linearVelocity = Vector3.zero; if (HeldCup != null) Drop(); }
         public void Drop() { if (HeldCup != null) { HeldCup.Drop(body.linearVelocity); HeldCup = null; charging = false; } }
         public void BeginCharge() { if (HeldCup != null && !IsStunned) charging = true; }
         public void ReleaseCharge() {
@@ -34,7 +35,7 @@ namespace KwaFee {
         public void BeginChug() {
             if (IsStunned || chugging) return;
             if (!VerbRules.CanChug(HeldCup != null, HeldCup != null ? HeldCup.Liquid : 0f)) { game.Roast("Big Vinny: Nothin' to slug, kehd."); return; }
-            chugging = true; game.RecordVerb(VerbKind.Chug);
+            chugging = true; game.RecordChug(Id);
         }
         public void EndChug() { chugging = false; }
         public void FixNearest() { if (!IsStunned) game.TryFix(this); }
