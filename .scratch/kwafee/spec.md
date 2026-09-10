@@ -129,6 +129,15 @@ Two compute tiers: cheap (BUILDER, DeepSeek V4 Flash) and scarce expensive (RATE
 - **NPCs never call an LLM** — only Big Vinny's voice, generated locally.
 - **/EVIDENCE.md + /DECISIONS.md are source of truth.** Resume any session from them; never re-derive settled decisions.
 
+## SESSION PROTOCOL & HUMAN TESTING (MANDATORY)
+
+This build spans many sessions, on two model tiers. Treat it like a relay:
+
+- **Every session starts** by reading /DECISIONS.md and /EVIDENCE.md, then working the next unpassed artifact (or its next unpassed pass). Never spawn a blank-context model into mid-project work.
+- **Every session ends** by appending its pass results and any new decisions. The files are the memory; a session that does not append did not happen.
+- **The human test is the gold standard.** After artifact 8 (delivery axis) and again at the end: produce a PLAYTEST build (one URL or one LAN link) plus a 10-question feedback card (fun, funny, chaos, controls, confusion, would-play-again, one suggestion each). A real human plays it, fills the card, drops it in /EVIDENCE.md. The RATER ranks human feedback above its own opinion; a human laugh or "again" outranks any metric.
+- **The RATER's own sessions** are read-only investigations plus a ≤200-line verdict. RATER does not fix, RATER does not build, RATER does not burn the expensive tier repairing.
+
 ## SECURITY & ENV — TRUST NO ONE, LEAST OF ALL THE AI YOU RENT
 
 The BUILDER writes 100% of the code. The RATER and BUILDER can both be wrong. This section is gates, not rules-of-thumb:
