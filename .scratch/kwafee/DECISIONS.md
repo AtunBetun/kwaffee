@@ -87,3 +87,9 @@ Until both, every `-batchmode` build fails. Flash/astra must NOT retry licensing
 
 - Delivered a playable CoreLoop shift in-editor: 3-min round, orders with Boston demands + patience, shared quota, Big Tony fixture loss, per-player tips/culprit/junkie, awards summary, R restart. Scene machine prefabs are wired; Create Core Loop Scene must be run OUTSIDE Play Mode (NewScene throws in play mode). Machine colliders stay non-trigger (Unity rejects concave triggers); verbs target machines by proximity.
 - Next artifacts in order: 2 five-verbs+griefing (fun/AFK-cat), 3 coffee-drug/death, 4 machines cascade, 5 mule/dealers, 6 NPC cast, 7 visual identity, 8 juice/replay, 9 audio, 10 netcode, 11 onboarding, 12 balance. The round loop is the substrate all of these extend.
+
+## Workflow: main branch only — 2026-09-10
+
+- Owner directed: **no branches, no worktrees, all work lands directly on `main`.** Recorded as ADR-0005 (`docs/adr/0005-main-branch-only.md`). Do not re-derive worktree/branch setup in future sessions; resume from this ruling.
+- Isolation is by ownership, not by branch: Beads ticket claims = one file owner at a time; assets are per-asset bpy scripts importing shared helpers, each writing its own output under `kwaffee/Assets/KwaFee/Art/`; commit small and often so no dirty tree blocks other agents.
+- Parallel Blender runs are headless scripts (`blender -b -P`), separate processes, safe concurrently. The Blender MCP listener (127.0.0.1:9876) is one live scene — never shared between parallel agents.
