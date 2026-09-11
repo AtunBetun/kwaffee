@@ -1,0 +1,167 @@
+{
+  "tickets": [
+    {
+      "id_restore": "kwaffee-6id",
+      "number": 0,
+      "title": "Deepen the Shift: one seam for player, bot, and sim",
+      "issue_type": "feature",
+      "what_to_build": "One deep Shift module behind one seam. Every actor — the human's keyboard, the bot policy, and the SimHarness — sends gameplay intent through the same Command surface and reads round state through Metrics. The MonoBehaviours keep only what Unity requires of them: kinematic state, visuals, and translation of physics callbacks into Shift calls. All verdict logic lives behind the seam, in one place, testable through it.",
+      "acceptance": [
+        "All gameplay intent — grab, fling (charge/release), chug (begin/end), drop, fix, steal, sabotage, move, aim — from the player's keyboard, the bot policy, and the SimHarness enters through the single Shift.Command surface.",
+        "All round state — tips, serves, hits, misses, catches, chugs, overdoses, fixes, steals, sabotages, chaos events, machine health, backlog, order board, shift clock, quota, round summary — exits only through Shift.Metrics(); the HUD and the /sim report read only this, so the numbers the player sees are true.",
+        "The 21 existing EditMode tests pass or are deliberately replaced at the seam (never re-pinned); new Shift-seam tests drive Begin/Command/Step and assert on Metrics() outcomes only, never on internal arrays or MonoBehaviour internals.",
+        "A fling that lands credits the culprit, spills the cup, and increments the culprit counter; a chug drains the held cup; a steal respects distance and empty hands; machine production drains backlog to the rack; a quota miss brings Big Tony; order expiry walks a customer — each proven by one Step + one Command + one Metrics assertion.",
+        "/sim numbers are unchanged within tolerance before vs after the refactor: the same seed + fixed scripted policy yields identical determinism_hash/metrics, so the restructure does not silently change game feel.",
+        "No gameplay rule lives in a MonoBehaviour; components keep only kinematic/visual state and forward physics callbacks (collision, trigger) into the Shift, and the 50 Hz lockstep (Shift Step(dt) then physics Simulate(dt), seeded RNG, fixed dt, sim adapter owns physics stepping) survives unchanged.",
+        "Spec: .scratch/kwafee/architecture-spec.md"
+      ],
+      "blocked_by": [],
+      "blender_art": "NONE"
+    },
+    {
+      "id_restore": "kwaffee-uq2",
+      "number": 1,
+      "title": "Core Loop Prototype: playable, measurable, self-teaching shift",
+      "issue_type": "task",
+      "what_to_build": "A playable, measurable core loop: grab a cup, hold to charge (0.35–1.2 s, wind-up squash-stretch plus a code-drawn candy ring on the cup), release to fling, and every outcome visible and funny within about a second — a correct serve tips the named carrier, hitting a barista stuns them, a miss bounces and stains the floor. Demand lines and the HUD teach the loop with no tutorial screen. The /sim harness records real, reproducible numbers (bit-identical determinism_hash) into a committed report, so the gate closes on measurement, not on structure.",
+      "acceptance": [
+        "/sim seed 20260910, 180 s, 4 bots exits clean and writes all contract fields; a second same-machine run reproduces determinism_hash bit-identical (report committed at sim/gate-1/20260910.txt).",
+        "Charge hold < 0.35 s never launches; launch speed strictly monotonic in hold 0.35→1.2 s to ~14 m/s (EditMode guard).",
+        "Full-charge flight stays airborne ≥ 0.8 s and lands or hits something — no air-pops, no sink-through.",
+        "Every hit has a visible consequence within ~1 s: serve → tip to last carrier; barista hit → stun; miss → bounce + stain. No silent outcomes.",
+        "Self-teach: an observed session (owner host play, provisional) performs grab→charge→fling→serve without instruction, using only demand lines + HUD.",
+        "Charge/spill/hit visual feedback is code/2D, zero new Blender meshes.",
+        "No per-frame allocation in CoreGame.Step / SimHarness loop beyond pooled objects (steady-heap probe; regression = blocker).",
+        "Spec: .scratch/kwafee/specs/01-core-loop-spec.md"
+      ],
+      "blocked_by": [],
+      "blender_art": "NONE"
+    },
+    {
+      "id_restore": "kwaffee-zkm",
+      "number": 2,
+      "title": "The Five Verbs + Griefing",
+      "issue_type": "task",
+      "what_to_build": "Five verbs, all working and funny alone: FLING (chemical-serve conveyor), CHUG (drink → speed boost → wobble-flop overdose, never death), FIX (wrench heal on all four machines), STEAL (cup transfer the victim can always steal back), SABOTAGE (machine-health damage only). A real chaos counter counts consequential disruptions, with STEAL measured as the most-used deliberate verb. Grief is bounded by design — short stuns, conserved tips, recoverable cups, degraded-not-dead machines, public Big Vinny shame — so one jerk friend physically cannot unplay the shift. The Shop Cat covers AFK stations with a seeded bungle cycle and scurries off when the player returns.",
+      "acceptance": [
+        "Chaos rate: /sim 20-seed sweep median chaos events ≥ 8/min under the consequential-disruption taxonomy; report prints chaos/min + per-src breakdown.",
+        "STEAL dominance: medians satisfy Steals > max(Chugs, Fixes, Sabotages) and Steals ≥ 6/shift; every bot steals ≥1×/shift via an opportunistic policy (no forced events).",
+        "Grief balance: no player grief style >50% share per seed or in aggregate; player grief events ≥ 6/shift median (non-vacuous); cat-sourced chaos excluded from the guard.",
+        "Fun-alone viability: each verb has an EditMode state-tag transition test (input → named state change ≤0.5s) and a roast-hook assertion; every verb exercised ≥1× per bot per shift in the sweep.",
+        "Grief rails: denial/event ≤1.5s; recovery invariants hold (stolen cups stealable back, tips conserved, rack pool ≥4 cups); solo-griefer quota-sink ≤20% of shifts; no removal mechanic exists.",
+        "AFK-cat: AFK flag ≤1s after 10s idle; cat assigned ≤1.5s; cat serve success ≤30% seeded; cat exit ≤2s after input; cat chaos tagged src=cat and excluded from player verb metrics and style guard.",
+        "Every visible asset authored via the Blender bpy pipeline (headless, manifest-validated ≤35,000 triangles, grounded y=0); no external/downloaded assets.",
+        "Spec: .scratch/kwafee/specs/02-five-verbs-griefing-spec.md"
+      ],
+      "blocked_by": [
+        "kwaffee-uq2"
+      ],
+      "blender_art": "6 new Barista rig animation sets (chug_drink, chug_wobble, fix_wrench, steal_grab, sabotage_yank, dizzy_flop) + 2 Shop Cat sets (cat_flipserve, cat_scurry); shared googly-eye puck squash."
+    },
+    {
+      "id_restore": "kwaffee-bgd",
+      "number": 3,
+      "title": "Coffee drug & death",
+      "issue_type": "task",
+      "what_to_build": "Chugging is a readable 3-zone gamble: Chill (0.0–1.6s) is always safe and always rewarded, Danger (1.6–2.5s) shows X-eye flicker, tremble, and one Big Vinny warning, and past 2.5s is an OD — a comedic, scripted collapse: the cup drops and fully spills, one Vinny roast fires, a tiny shake, a squash-first flop into an X-eyed limp corpse, then a 3.0s respawn at your own colored spot with a 1.5s stun-immune grace. Death costs exactly 3 seconds and your spilled cup, and never touches your tips, culprit score, or the shared quota — an overdose is always your own fault and never another player's grief tool.",
+      "acceptance": [
+        "Chug is used: mean chug bouts per player per shift across scripted 4-bot sim runs: 1.5 ≤ μ ≤ 4.0.",
+        "The right call exists: ≥40% of sim chug bouts end before Danger (<1.6s) under a mixed short-sip/greedy-hold policy; median bout 0.9–1.8s (taps dominate).",
+        "Cheapness bound: every OD downtime from OD-trigger to controls-live = 3.0s ± 0.05s; zero delta asserted on TipLedger balance, culprit score, and quota counter for that player and team.",
+        "Cup consequence: every OD-while-holding drops the cup at the collapse point, Liquid = 0, cup re-grabbable within 1s of physics settle.",
+        "No forced OD: fuzz interleaving of FLING/STEAL/SABOTAGE/FIX against a non-chugging bot yields chugSeconds == 0 throughout — no cross-player chug accumulation exists.",
+        "Replay hook: each OD records a deterministic DeathContext per player + timestamp, readable by artifact 8's replay registrar.",
+        "Every visible asset authored via the Blender bpy pipeline (headless, manifest-validated ≤35,000 triangles, grounded y=0); no external/downloaded assets.",
+        "Spec: .scratch/kwafee/specs/03-coffee-drug-death-spec.md"
+      ],
+      "blocked_by": [
+        "kwaffee-zkm"
+      ],
+      "blender_art": "5 bpy-authored rig animation sets (barista_jitter_tremble, barista_dizzy_bobble, barista_od_collapse, barista_od_corpse, barista_od_respawn) + X-eye submesh; code-driven tremble/squash/tilt fallback if the exporter cannot carry keyed pose animations."
+    },
+    {
+      "id_restore": "kwaffee-kvu",
+      "number": 4,
+      "title": "Machines & Sabotage: overpressure, geysers, cascades",
+      "issue_type": "task",
+      "what_to_build": "Every machine gets a second visible life — overpressure. Sabotage a machine and it starts shaking, bulging, and wisping steam; use it while PRIMED and it blows up in your face: a geyser of ≥12 physical beans, a steam burst, camera shake, hitstop, and a stun. The Steam Wand scalds anyone in range on its next use. A wrench vents a PRIMED machine (defusing the prank) and revives a broken one; when one machine blows, the spray nudges its neighbors so a shift can cascade into replay-worthy moments. Machine state reads from sight alone — no docs — and everything is seeded and deterministic for the replay axis.",
+      "acceptance": [
+        "All 4 machines expose the derived 4-rung health ladder (HEALTHY/WORN/JAMMED/BROKEN) driven by machineHealth plus a parallel PRIMED/SAFE state driven by overpressure; the two axes are orthogonal (healthy+primed and broken+primed both reachable).",
+        "SABOTAGE raises overpressure; crossing ≥1.0 = PRIMED (visible shake + steam wisps + squash-stretch bulge); the next USE of a PRIMED machine fires a GEYSER (≥12 pooled beans/grounds/ice/steam payload + steam ParticleSystem + camera shake + hitstop + user stun); a primed machine that breaks unused jams without a geyser.",
+        "FIX vents PRIMED overpressure to 0 (hiss + relief puff) and revives BROKEN machines; both valid mid-cascade — the defuse counterplay keeps sabotage a sprint, not a guaranteed hit.",
+        "Cascade: a geyser/scald/breakdown nudges adjacent-machine health; ≥2 machine events within 6s = one cascade, and any geyser alone counts as replay-worthy; all logic a pure function of (state, inputs, dt, seededRng) with zero wall-clock reads, so the same seed replays byte-identical events.",
+        "/sim: ≥40 seeded shifts across 4 bots report cascadesPerShift; pass rate ≥80% with ≥1 cascade per shift; zero per-frame allocation (pooled beans + capped event log) holds the 60fps 4-player budget.",
+        "MachineEvent log pooled + capped, timestamped (shiftTime, machineId, kind, fromState, toState) for geyser/scald/breakdown/fix/prime — the artifact-8 contract, no playback built here; first prime and first breakdown each fire exactly one Big Vinny nudge and machine states are sight-readable (tint/wobble/bulge/steam).",
+        "Every visible asset authored via the Blender bpy pipeline (headless, manifest-validated ≤35,000 triangles, grounded y=0); no external/downloaded assets.",
+        "Spec: .scratch/kwafee/specs/04-machines-sabotage-spec.md"
+      ],
+      "blocked_by": [
+        "kwaffee-bgd"
+      ],
+      "blender_art": "geyser jelly-beans (candy bean, shared with Artifact 5 if reusable), wrench prop, steam sprite (soft radial-gradient for ParticleSystem); machine degradation via code tint+wobble (zero new mesh on the four rigs)."
+    },
+    {
+      "id_restore": "kwaffee-026",
+      "number": 5,
+      "title": "The Mule & dealers",
+      "issue_type": "task",
+      "what_to_build": "Once per shift when the beans run dry (seeded to land ~60% through), Big Vinny drafts the player with the fewest tips for a Mule bean run — and any other player can horn-steal it with V. One short street drive in the same scene (no load, no scene swap): steer the van like wet soap, hold-to-charge a boost on the exact FLING charge curve, smash cones, buck through potholes, and either boost-leap the googly-eyed pigeon or tumble, scatter beans, and restart just past it. At the fork pick one of three dealers — Big Sal's (good, priced), Rosie's (reliable, boring), Ma Paddy's (pre-war, priced for YOU, remembers grudges) — with exactly one coin-bag fling haggle. The shop keeps serving while you drive, and the whole interlude stays ≤45s as comedy, never a shift-stopping chore.",
+      "acceptance": [
+        "Beans dry exactly once per shift, seeded ~60% through; /sim asserts one interlude per 3.5-min shift and no second trigger at ≤20s / 60% / 95% marks.",
+        "Interlude ≤45s wall time from draft to back-in-shop; ≥1 laugh event fires in ≥70% of seeded scripted runs.",
+        "Haggle is exactly one coin-bag fling on the Artifact-1 FLING charge curve; the scale target zone decides paid vs underpaid; both outcomes reachable.",
+        "Ma Paddy grudge persists per cafe per player: underpay increments the per-player short count; price multiplier 1 + 0.25*grudge applies to that player's price on subsequent runs; chase bursts 100% on underpay; chase + pigeon-tumble both produce replay candidates.",
+        "Dealer choice non-obvious: /sim 20-shift sweep shows each dealer picked <50% of shifts and per-player prices diverge for players with different grudge history.",
+        "During the run the shop keeps producing serves; /sim tracks tips/serves during the interlude and shows the shop does NOT stall.",
+        "Every visible asset authored via the Blender bpy pipeline (headless, manifest-validated ≤35,000 triangles, grounded y=0); no external/downloaded assets.",
+        "Spec: .scratch/kwafee/specs/05-mule-dealers-spec.md"
+      ],
+      "blocked_by": [
+        "kwaffee-026"
+      ],
+      "blender_art": "TheMule van (glossy candy bean, cookie wheels, growing dent), DealerSal/DealerRosie/DealerPaddy (three bobblehead dealer bodies, felt aprons, distinct tall-thin/squat-apron/wide+shawl silhouettes), CoinBag, Scale, RoadCones + Potholes, ThePigeon (googly-eyed felt, spring-bobble), MobilityScooter, static-merged MuleStreet + MuleStorefronts."
+    },
+    {
+      "id_restore": "kwaffee-1x1",
+      "number": 6,
+      "title": "NPC cast: customers, Shop Cat, Big Vinny, Inspector, street life",
+      "issue_type": "task",
+      "what_to_build": "The shop becomes a living room: customers walk in, order, react, remember, and gossip; the Shop Cat lives an 8-state life and is unkillable; Big Vinny narrates with ~50 trigger rules; the Health Inspector watches for filth. Six WHO customer types react within one second to what actually happens and gossip about real events, and the shop remembers across shifts (small per-cafe JSON) so burning the same customer type twice carries a vendetta. Customers walk a waypoint loop without clipping, never get stuck, never ignore a cup to the face, and passersby drift past the window. All deterministic and seeded, with zero runtime LLM and zero network in any NPC path.",
+      "acceptance": [
+        "Every NPC polls WorldSignals + the event ring buffer each FixedUpdate (30Hz); no event older than 30 ticks is consumed (1s reaction).",
+        "≥2 distinct gossip/reaction lines per shift referencing a real buffered eventTag.",
+        "Geometry/liveness: all active NPC positions pass shop-bounds + collider-clearance checks every tick (zero clips); no (state, target) dwell >6s (zero stuck loops); fling at an NPC → ragdoll/reaction within 1s (zero ignored flames).",
+        "Personalities differ: identical event + matched noise seed → ≥2 WHO produce different next-state/goal; all 6 WHO + Shop Cat + inspector present, no two WHO read identical.",
+        "Determinism + no-LLM: same seed + scripted input → identical reaction/state sequence (/sim trace diff); no runtime LLM/network call in any NPC path.",
+        "Memory + cat + inspector: burn 2× → vendetta flag + refusal to tip in the next shift (cross-shift harness); AFK >N s → cat covers the station (reduced machine throughput); filth above threshold → inspector patrols, sweep drains suspicion, failed inspection → next fine bigger.",
+        "Every visible asset authored via the Blender bpy pipeline (headless, manifest-validated ≤35,000 triangles, grounded y=0); no external/downloaded assets.",
+        "Spec: .scratch/kwafee/specs/06-npc-cast-spec.md"
+      ],
+      "blocked_by": [
+        "kwaffee-1x1"
+      ],
+      "blender_art": "Shop Cat (new 4-leg, spring-tail felt rig, anims for all 8 states + cosmetic ragdoll) + 6 customer WHO variants (cop hat, influencer phone, nurse cap, critic notebook, grandma gray bun, intern briefcase) + inspector badge/visor accent; passersby are code/SVG sprites (no mesh)."
+    },
+    {
+      "id_restore": "kwaffee-x0i",
+      "number": 7,
+      "title": "Visual identity: one LOOK, machine-checked",
+      "issue_type": "task",
+      "what_to_build": "Five living characters (Barista, Customer, Shop Cat, Big Vinny bust, Dealer base) plus the four machines as living props, every one machine-checked against the 8 LOOK rules with a named parent trace. One committed palette.json that Blender, the Unity validator, and future UI all read, so colors physically cannot drift. Two rendered contact sheets (full color + ink silhouette) with numeric pairwise shape-distance gates, so no two characters ever read as the same silhouette. One wobble language — exactly BobbleController and GooglyEyes drive all idle motion — deterministic, seeded, zero-alloc, 60fps-safe. A CandyUI token contract locks the look for future screens.",
+      "acceptance": [
+        "Roster: manifest contains exactly the 15 required names (Cup, Barista, Customer, Counter, Floor, Wall, Tray, Sign, Espresso, Grinder, SteamWand, IceMachine, ShopCat, VinnyHead, Dealer); unknown/duplicate/missing → import fails.",
+        "Per-mesh look: every mesh carries look.parent ∈ {clay, candy}, non-empty rules ⊆ {1..8}, trace with ≥1 named rule for the 10 gate entries, and a valid material-class prefix (clay_/plastic_/felt_ or specials whitelist).",
+        "Palette lock: canonical palette json is the single source of truth; every manifest material color within 0.01/channel of its palette key; validator rejects drift.",
+        "Silhouette: 5 characters each have a unique silhouetteId; pairwise normalized IoU (ortho ink-silhouette sheet) < 0.60 among characters, < 0.50 among the 4 machines, characters-vs-machines < 0.50; sheets written to scratch as RATER evidence, thresholds tune-and-lock on first run then fixed.",
+        "Bobble: every living entity + every machine carries bobble hints; head diameter/height ≥ 0.35 on all humanoids, Vinny ≥ 1.25× Barista's head ratio; runtime uses only BobbleController/GooglyEyes — zero idle anims outside them.",
+        "Triangle cap: total ≤ 35,000 after additions (forecast ≈ 24k); validator-enforced; future mesh merges report triangle deltas.",
+        "Every visible asset authored via the Blender bpy pipeline (headless, manifest-validated ≤35,000 triangles, grounded y=0); no external/downloaded assets.",
+        "Spec: .scratch/kwafee/specs/07-visual-identity-spec.md"
+      ],
+      "blocked_by": [
+        "kwaffee-x0i"
+      ],
+      "blender_art": "Shop Cat (~3k, felt body), Big Vinny bust (~1.5k, 20% head), one Dealer base (~2k, tint-slot convention), 4 googly-eye pucks on the machines, head-proportion tune + look/bobble/eyes field backfill on the 12 existing meshes."
+    }
+  ]
+}

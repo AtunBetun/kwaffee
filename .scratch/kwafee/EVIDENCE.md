@@ -2,6 +2,10 @@
 
 Each RATER pass appends here: artifact, pass, scores, findings, fixes, status. Grows monotonically and truthfully. No entries yet — build has not started.
 
+## 2026-09-10 — Tracker restructure (ops, not an artifact pass)
+
+- All 14 Beads issues backed up, deleted, and re-added as grilling-then-spec'd tickets (original IDs preserved; details + decisions in DECISIONS.md). No RATER scores or gate status changed by this entry.
+
 ## Gates
 
 - Artifact gate: 2 consecutive passes ≥8/10 on target dimensions, 0 blockers, 0 majors, min 3 passes.

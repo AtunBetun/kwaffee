@@ -88,6 +88,17 @@ Until both, every `-batchmode` build fails. Flash/astra must NOT retry licensing
 - Delivered a playable CoreLoop shift in-editor: 3-min round, orders with Boston demands + patience, shared quota, Big Tony fixture loss, per-player tips/culprit/junkie, awards summary, R restart. Scene machine prefabs are wired; Create Core Loop Scene must be run OUTSIDE Play Mode (NewScene throws in play mode). Machine colliders stay non-trigger (Unity rejects concave triggers); verbs target machines by proximity.
 - Next artifacts in order: 2 five-verbs+griefing (fun/AFK-cat), 3 coffee-drug/death, 4 machines cascade, 5 mule/dealers, 6 NPC cast, 7 visual identity, 8 juice/replay, 9 audio, 10 netcode, 11 onboarding, 12 balance. The round loop is the substrate all of these extend.
 
+## Backlog re-ticketed via grilling → to-spec → to-tickets — 2026-09-10
+
+- Owner directed the matt-pocock loop: grill every backlog item, spec each, break into tickets, so the ralph loop can pick them up. Owner also ruled: any work needing visible art uses the in-repo Blender bpy pipeline (headless `blender -b -P`, manifest-validated) — encoded in every ticket's acceptance criteria. Owner took decisions during grilling ("take the decisions yourself", friendslop lens).
+- All 14 Beads issues were backed up to `.scratch/kwafee/beads-export-20260910.md` + `/tmp/kwafee-beads-20260910.jsonl`, then **deleted from Beads** per owner instruction, then re-added as re-ticketed tickets.
+- Grilling memos (13 artifacts, one per decision tree): `.scratch/kwafee/grilling/<NN>-<slug>.md`.
+- Specs (to-spec template, each ends with a measurable Refined Gate): `.scratch/kwafee/specs/<NN>-<slug>-spec.md`.
+- Ticket plans: `.scratch/kwafee/ticket-plans/{plan-a,plan-b}.json`.
+- Re-created with original IDs: 13 artifact tickets (`kwaffee-uq2` … `kwaffee-4k0`) + `kwaffee-6id` (shift-seam refactor, restored verbatim from its spec at `.scratch/kwafee/architecture-spec.md`; NOT completed — code not landed — do not close it).
+- Blocking graph = artifact chain 01→…→13, plus `kwaffee-6id` blocks `kwaffee-7xn` (netcode consumes the seam: Server Begin + WorldState pose read + 30 Hz pin). All tickets labeled `ready-for-agent`. `bd ready` frontier: `kwaffee-6id`, `kwaffee-uq2`.
+- Notable grilled decisions: RATER 2-review cap is per-session/per-approach (3 full-session passes span 3 slow-tier sessions; no human waiver; self-review never counts); 50 Hz sim reconfirmed to 30 Hz for Artifact 10 per ADR-0001; all audio baked to WAV at build time (WebGL/GC safety), shifting-spec runtime synthesis dropped.
+
 ## Workflow: main branch only — 2026-09-10
 
 - Owner directed: **no branches, no worktrees, all work lands directly on `main`.** Recorded as ADR-0005 (`docs/adr/0005-main-branch-only.md`). Do not re-derive worktree/branch setup in future sessions; resume from this ruling.
