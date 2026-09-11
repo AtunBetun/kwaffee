@@ -11,11 +11,20 @@
 #   Iterations stop at the first ticket that reports <promise>DONE</promise>.
 #
 # Per iteration:
-#   - `bd ready` picks the highest-priority ticket; claims it
+#   - `bd ready --exclude-type=epic` picks the next implementation ticket; claims it
 #   - streams the raw omp NDJSON to the terminal in real time (omp --mode json emits pure NDJSON; tee displays + saves)
 #   - saves the full NDJSON event stream to .scratch/kwafee/convos/iter-N.jsonl
 #   - prints the omp session id, resumable with: omp --resume <id>
 #   - closes the ticket only when the agent reports <promise>DONE</promise>
+#
+# Frontier liveness: a no-promise iteration RELEASES the claim
+# (bd update <id> --status open --assignee '') so the ticket returns to
+# `bd ready` and the next iteration re-claims it with a fresh context. Without
+# this, a claimed-but-unfinished ticket starves the frontier: `bd ready`
+# excludes in_progress issues, and the strict artifact chain means only
+# ~2 tickets are ever simultaneously claimable (kwaffee-6id + one chain head).
+# A <promise>FAILED</promise> ticket stays claimed for human triage on purpose;
+# an omp crash (non-zero exit) is retried on the SAME ticket next iteration.
 #
 # Watch live:      terminal stream, or tail -f .scratch/kwafee/convos/iter-N.jsonl
 # Hop in:          Ctrl+C the loop, then: omp --resume <sid>
@@ -118,5 +127,9 @@ for ((i=1; i<=$iterations; i++)); do
   fi
   unset retry_ticket_id retry_ticket_title
   rm -f "$tmp"
-  # No promise: ticket left open for the next iteration.
+  # No promise and omp exited clean: release the claim so this ticket returns
+  # to `bd ready` and the next iteration picks it (or the other frontier
+  # ticket) again. Without this the frontier starves after ~2 iterations.
+  echo -e "${DIM}No promise — releasing claim on ${ticket_id}; it is claimable again.${RESET}"
+  bd update "$ticket_id" --status open --assignee "" >/dev/null 2>&1 || true
 done
