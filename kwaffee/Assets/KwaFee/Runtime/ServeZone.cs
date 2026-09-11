@@ -13,7 +13,10 @@ namespace KwaFee {
             if (existing is MeshCollider) { DestroyImmediate(existing); existing = null; }
             if (existing == null) {
                 BoxCollider box = gameObject.AddComponent<BoxCollider>();
-                box.center = Vector3.up * .05f; box.size = new Vector3(1.4f, .2f, .8f);
+                // Arcade catch shelf in front of the customers: wide and tall
+                // enough that a flung cup reads as "served" like every
+                // catch-game tray, not a 0.2-high invisible plate.
+                box.center = new Vector3(0f, .7f, -.3f); box.size = new Vector3(2.4f, 1.6f, 1.2f);
                 existing = box;
             }
             existing.isTrigger = true;

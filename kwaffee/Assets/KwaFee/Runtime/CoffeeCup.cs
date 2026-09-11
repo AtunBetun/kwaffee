@@ -29,7 +29,10 @@ namespace KwaFee {
         }
         public void PutOnRack(Vector3 position) {
             State = CupState.Rack; Liquid = 1f; Age = 0f; OwnerId = -1; scored = false; WasAirborne = false;
-            body.isKinematic = true; body.detectCollisions = true; cupCollider.enabled = true;
+            // Rack cups are inventory slots: kinematic and non-colliding so a
+            // barista can walk up to the rack and press E without the cup
+            // acting as a solid shelf obstacle.
+            body.isKinematic = true; body.detectCollisions = false; cupCollider.enabled = false;
             transform.SetPositionAndRotation(position, Quaternion.identity); body.linearVelocity = Vector3.zero; body.angularVelocity = Vector3.zero;
         }
         public void Hold(Barista holder) {

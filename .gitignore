@@ -35,7 +35,7 @@ crashlytics-build.properties
 # OS
 .DS_Store
 
-# Scratch: keep deciders and tickets, drop generated
+# Scratch: keep live documents, drop the rest (tickets live in Beads)
 .scratch/*
 !.scratch/kwafee/
 .scratch/kwafee/*
@@ -43,10 +43,6 @@ crashlytics-build.properties
 !.scratch/kwafee/PROMPT.md
 !.scratch/kwafee/DECISIONS.md
 !.scratch/kwafee/EVIDENCE.md
-!.scratch/kwafee/issues/
-!.scratch/kwafee/issues/
-!.scratch/kwafee/*-report.md
-!.scratch/kwafee/*-request.md
 !.scratch/kwafee/art-preview.png
 
 # Environment
@@ -67,3 +63,9 @@ crashlytics-build.properties
 !tools/
 !tools/kwafee/
 !tools/kwafee/**
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+*.db
+.beads-credential-key
+.beads/proxieddb/

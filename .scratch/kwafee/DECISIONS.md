@@ -7,7 +7,7 @@ The working decisions of the build. Sessions resume from here; never re-derive s
 - **Engine:** Unity 6 (6000.6.0f1), pinned LTS. Headless authoritative server sharing the client's scene graph + physics (see `docs/adr/0001-unity-headless-authoritative.md`).
 - **Models:** Blender 5.2.1 LTS, bpy-scripted (reproducible, parameterized). Export to .glb.
 - **Two-tier model loop:** BUILDER = cheap tier (DeepSeek V4 Flash), RATER = expensive tier (GPT 6 Astra). Asymmetry + escalation ladder + ≤200-line RATER cap (see `docs/adr/0002-two-tier-builder-rater.md`).
-- **Tracker:** local markdown `.scratch/` (see `docs/adr/0003-local-markdown-issue-tracker.md`).
+- **Tracker:** Beads (`bd` CLI, local Dolt DB under `.beads/`); specs/session memory stay in `.scratch/kwafee/` (see `docs/adr/0004-beads-issue-tracker.md`).
 - **Art direction:** How To Fish clay + Gamble With Your Friends candy arcade. 8 hard rules in THE LOOK section of the spec.
 - **Theme/name:** KWA FEE, Boston-accent coffee shop, 3-4 players, five verbs (FLING/CHUG/FIX/STEAL/SABOTAGE), shared quota, per-player tips.
 - **Game structure:** 3-4 min shifts, CATASTROPHE REPLAY, awards, tabloid, upgrades.

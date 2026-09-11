@@ -8,6 +8,8 @@ namespace KwaFee {
         public bool IsStunned => stun > 0f;
         public float Charge01 => FlingRules.Charge01(charge);
         public float Chug01 => Mathf.Clamp01(chugSeconds / VerbRules.OverdoseSeconds);
+        public float StunTime => stun;
+        public Vector3 VelocityRef => body != null ? body.linearVelocity : Vector3.zero;
         Rigidbody body; CoreGame game; Vector2 move; Vector3 aim = Vector3.forward; float charge; bool charging; float stun; float chugSeconds; bool chugging; bool overdosed;
         Vector3 spawnPosition;
 
@@ -16,6 +18,7 @@ namespace KwaFee {
         public void Configure(CoreGame owner, int id) {
             game = owner; Id = id; body = GetComponent<Rigidbody>(); if (body == null) body = gameObject.AddComponent<Rigidbody>();
             body.freezeRotation = true;
+            body.sleepThreshold = 0f; // bots/players must never auto-sleep mid-drive
             spawnPosition = spawnPositions[id % spawnPositions.Length];
             transform.position = spawnPosition;
         }
@@ -58,6 +61,7 @@ namespace KwaFee {
             float jitter = chugSeconds > 0f ? Mathf.Sin(chugSeconds * 18f + Id) * .06f : 0f;
             Vector3 velocity = new Vector3(move.x + jitter, 0f, move.y - jitter) * game.MoveSpeed * boost;
             body.linearVelocity = new Vector3(velocity.x, body.linearVelocity.y, velocity.z);
+            body.WakeUp(); // Unity autosleep swallows velocity writes on sleeping bodies
             if (aim.sqrMagnitude > .01f) transform.rotation = Quaternion.LookRotation(aim, Vector3.up);
             if (charging) charge = Mathf.Min(FlingRules.ChargeDuration, charge + dt);
             if (chugging) {

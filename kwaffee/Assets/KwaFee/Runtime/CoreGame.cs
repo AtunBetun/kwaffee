@@ -50,7 +50,7 @@ namespace KwaFee {
         static readonly Vector3[] machinePositions = { new Vector3(-2.5f, 0f, 1.8f), new Vector3(-.8f, 0f, 1.8f), new Vector3(.9f, 0f, 1.8f), new Vector3(2.6f, 0f, 1.8f) };
         TipLedger tips;
         bool initialized, bots, manualSim, shiftOver, quotaMet, tonyCalled; System.Random random; string roast = "Get a cup movin', ya statue."; float roastTime;
-        Barista human; Vector3 rack = new Vector3(-4f, 0.95f, 0f);
+        Barista human; Vector3 rack = new Vector3(-4f, 1.05f, -0.6f);
         float shiftElapsed, lastOrderSpawn; string roundSummary = "";
 
         sealed class ShiftOrder {
