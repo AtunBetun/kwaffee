@@ -12,7 +12,7 @@
 #
 # Per iteration:
 #   - `bd ready` picks the highest-priority ticket; claims it
-#   - streams assistant text to the terminal in real time (jq filter on NDJSON; omp --mode json emits pure NDJSON, so no grep/unbuffered)
+#   - streams the raw omp NDJSON to the terminal in real time (omp --mode json emits pure NDJSON; tee displays + saves)
 #   - saves the full NDJSON event stream to .scratch/kwafee/convos/iter-N.jsonl
 #   - prints the omp session id, resumable with: omp --resume <id>
 #   - closes the ticket only when the agent reports <promise>DONE</promise>
@@ -36,19 +36,26 @@ model="${2:-}"
 LOGDIR=".scratch/kwafee/convos"
 mkdir -p "$LOGDIR"
 
-STREAM_TEXT='select(.type == "message_update" and .assistantMessageEvent.type == "text_delta") | .assistantMessageEvent.delta // empty'
 SESSION_ID='select(.type == "session") | .id // empty'
+TMP_FILES=()
 
 for ((i=1; i<=$iterations; i++)); do
   echo -e "${CYAN}${BOLD}━━━ Iteration ${i}/${iterations} ━━━ $(date +%H:%M:%S) ${RESET}"
 
-  ticket=$(bd ready --claim --exclude-type=epic --json 2>/dev/null)
-  ticket_id=$(echo "$ticket" | jq -r '.[0].id // empty' 2>/dev/null)
-  if [ -z "$ticket_id" ]; then
-    echo -e "${GREEN}No ready ticket. All claimable work done.${RESET}"
-    exit 0
+  # On a retry, reuse the same ticket (e.g. omp network failure aborted the
+  # last run — it stays claimed, and `bd ready` would skip it forever).
+  if [ -z "${retry_ticket_id:-}" ]; then
+    ticket=$(bd ready --claim --exclude-type=epic --json 2>/dev/null)
+    ticket_id=$(echo "$ticket" | jq -r '.[0].id // empty' 2>/dev/null)
+    if [ -z "$ticket_id" ]; then
+      echo -e "${GREEN}No ready ticket. All claimable work done.${RESET}"
+      exit 0
+    fi
+    ticket_title=$(echo "$ticket" | jq -r '.[0].title // empty')
+  else
+    ticket_id="$retry_ticket_id"
+    ticket_title="$retry_ticket_title"
   fi
-  ticket_title=$(echo "$ticket" | jq -r '.[0].title // empty')
   echo -e "${YELLOW}${BOLD}Ticket:${RESET} ${BOLD}${ticket_id}${RESET} - ${ticket_title}"
   PROGDIR=".scratch/kwafee/progress"
   mkdir -p "$PROGDIR"
@@ -58,7 +65,7 @@ for ((i=1; i<=$iterations; i++)); do
   # Resolve the ticket's own spec from its body's "Spec:" pointer. The shared
   # spec files are already passed below; only add the per-ticket spec if it's
   # a different file.
-  spec_line=$(bd show "$ticket_id" 2>/dev/null | grep -oE 'Spec: [^ )]+' | head -1 | cut -d' ' -f2)
+  spec_line=$(bd show "$ticket_id" 2>/dev/null | grep -oE 'Spec: [^ )]+' | head -1 | cut -d' ' -f2) || true
   spec_arg=""
   spec_label="the shared spec"
   case "$spec_line" in
@@ -74,7 +81,8 @@ for ((i=1; i<=$iterations; i++)); do
   esac
 
   tmp=$(mktemp)
-  trap 'rm -f "$tmp"' EXIT
+  TMP_FILES+=("$tmp")
+  trap 'rm -f "${TMP_FILES[@]}"' EXIT
 
   omp -p --mode json ${model:+--model "$model"} @CONTEXT.md @.scratch/kwafee/DECISIONS.md @.scratch/kwafee/EVIDENCE.md @.scratch/kwafee/spec.md @.scratch/kwafee/architecture-spec.md ${spec_arg:+$spec_arg} \
     "Claimed ticket $ticket_id: $ticket_title.
@@ -85,8 +93,8 @@ for ((i=1; i<=$iterations; i++)); do
      2. Update the spec and $progress_file with what was done.
      3. Commit your changes.
      4. Output ONLY <promise>DONE</promise> when the ticket is complete and committed, or <promise>FAILED</promise> if you cannot finish it." \
-  | tee "$tmp" "$LOGDIR/iter-$i.jsonl" \
-  | jq -rj "$STREAM_TEXT"
+  | tee "$tmp" "$LOGDIR/iter-$i.jsonl"
+  omp_rc=${PIPESTATUS[0]}
 
   sid=$(jq -r "$SESSION_ID" "$tmp" | head -1)
   echo
@@ -101,5 +109,12 @@ for ((i=1; i<=$iterations; i++)); do
     echo -e "${RED}${BOLD}Ticket ${ticket_id} failed.${RESET} Left claimed for human triage (bd show ${ticket_id})."
     exit 1
   fi
+  if [ "$omp_rc" -ne 0 ]; then
+    echo -e "${YELLOW}omp exited non-zero ($omp_rc) on ${ticket_id} — retrying same ticket next iteration.${RESET}"
+    retry_ticket_id="$ticket_id"
+    retry_ticket_title="$ticket_title"
+    continue
+  fi
+  unset retry_ticket_id retry_ticket_title
   # No promise: ticket left open for the next iteration.
 done
