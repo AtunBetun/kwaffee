@@ -96,7 +96,10 @@ Until both, every `-batchmode` build fails. Flash/astra must NOT retry licensing
 - Specs (to-spec template, each ends with a measurable Refined Gate): `.scratch/kwafee/specs/<NN>-<slug>-spec.md`.
 - Ticket plans: `.scratch/kwafee/ticket-plans/{plan-a,plan-b}.json`.
 - Re-created with original IDs: 13 artifact tickets (`kwaffee-uq2` … `kwaffee-4k0`) + `kwaffee-6id` (shift-seam refactor, restored verbatim from its spec at `.scratch/kwafee/architecture-spec.md`; NOT completed — code not landed — do not close it).
-- Blocking graph = artifact chain 01→…→13, plus `kwaffee-6id` blocks `kwaffee-7xn` (netcode consumes the seam: Server Begin + WorldState pose read + 30 Hz pin). All tickets labeled `ready-for-agent`. `bd ready` frontier: `kwaffee-6id`, `kwaffee-uq2`.
+- Blocking graph = artifact chain 01→…→13, plus `kwaffee-6id` blocks `kwaffee-7xn` (netcode consumes the seam: Server Begin + WorldState pose read + 30 Hz pin). All tickets labeled `ready-for-agent`.
+- **Granularity (post-to-tickets):** the 13 artifact tickets are `epic` umbrellas (spec anchors, never claimed); each artifact got 2-3 vertical-slice child `task` tickets (37 children, IDs `<parent>.<n>`, e.g. `kwaffee-uq2.1`). The AFK loop claims `bd ready --claim --exclude-type=epic`, so it picks only implementation tasks + `kwaffee-6id` (feature, frontier-eligible), never specs/umbrellas. Deferral was tried and rejected: `bd ready` hides children of deferred parents (cascades). See `docs/adr/0008-ticket-taxonomy-afk-loop.md`.
+- Frontier (verified): `bd ready --exclude-type=epic` → `kwaffee-6id`, `kwaffee-uq2.1`.
+- ADR-0008 (ticket taxonomy / epic umbrellas) + ADR-0009 (when to run grilling→to-spec→to-tickets) lock in the mechanism and trigger discipline; afk-loop.sh claims with `--exclude-type=epic` and resolves each ticket's `Spec:` pointer into the agent context.
 - Notable grilled decisions: RATER 2-review cap is per-session/per-approach (3 full-session passes span 3 slow-tier sessions; no human waiver; self-review never counts); 50 Hz sim reconfirmed to 30 Hz for Artifact 10 per ADR-0001; all audio baked to WAV at build time (WebGL/GC safety), shifting-spec runtime synthesis dropped.
 
 ## Workflow: main branch only — 2026-09-10

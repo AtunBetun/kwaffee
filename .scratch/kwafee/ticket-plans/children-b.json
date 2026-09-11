@@ -1,0 +1,240 @@
+{
+  "artifacts": [
+    {
+      "artifact_slug": "08-juice-delivery",
+      "parent_id": "kwaffee-8iu",
+      "children": [
+        {
+          "title": "Play the shift's best catastrophe back in slow-mo",
+          "what_to_build": "When a Shift ends, the scored log picks the single biggest catastrophe by table weight (bean geyser, chain-drop, The Mule van incident, perfect theft, overdose collapse, steam scald, Big Tony fixture loss) with ties going to the later event, and the player watches that exact moment re-simmed from the shift-start snapshot at slow-mo on the camera that lived it - same physics, positions, and timing. A clean-but-uneventful shift gets a closing-bookend window instead, so every shift replays exactly once. A one-click Catastrophe Theatre scene (scripted bean geyser + chain-drop combo followed by its auto-replay) ships in the loop-friendly and regular playtest builds as the laugh-gate substrate, and the evidence protocol is prepped: the model may assert only that a recording file exists with non-trivial duration and a 10-question card is filled, never the laugh itself.",
+          "acceptance": [
+            "Replay determinism: /sim proves same seed + same input timeline gives an identical catastrophe score, replay window (within epsilon), and event tick between the live run and the re-sim - regression-asserted alongside Artifact 1's determinism suite; re-sim reproduces the top-scored event identically. Fails = blocker.",
+            "Exactly one replay per shift: every simulated shift yields exactly one replay selection, including the empty-log close-of-shift fallback (score 0, Vinny bookend).",
+            "Biggest-moment metric: catastropheScore = weight x magnitude logged per replayable event the moment it fires, ingested from the existing MachineEvent and GameEvents streams (no second event bus); tie goes to the later event; weights, magnitude semantics, and the N-second window live in one seeded, tunable table.",
+            "Replay path allocates zero per frame: capture is an append-only bounded input ring buffer closed at shift end, re-sim drives the same fixed-step CoreGame.Step from the shift-start snapshot, and the renderer consumes only the window tick range at the slow-mo factor - /sim or profiler evidence (60fps, 4 players).",
+            "Laugh-gate substrate: the Catastrophe Theatre scene plays a scripted catastrophe + its auto-replay headlessly in both builds; the human-evidence protocol (two recorded real-friend sessions + two completed 10-question cards in the evidence log) is documented and ready to run - model claims only file-exists + card-filled.",
+            "Spec: .scratch/kwafee/specs/08-juice-delivery-spec.md"
+          ],
+          "blocked_by": ["LAST_CHILD:07-visual-identity"]
+        },
+        {
+          "title": "Make impacts land: one JuiceController seam for hitstop, shake, and confetti",
+          "what_to_build": "A single JuiceController owns every Time.timeScale write, the one gameplay camera's shake, and a pooled confetti emitter; gameplay systems fire Burst, SlowMo, Shake, Confetti, and Squash juice events, so big impacts hitstop, splats and deaths stretch in slow-mo, bean geysers shake the room, a saved Quota bursts confetti, and every land squashes through the shared rig deformation language. No code outside the seam may write time scale or the gameplay camera transform, and the controller, replay path, and confetti pool allocate zero per frame. Confetti ships as a new pooled candy-gloss mesh so the juice is visible on screen.",
+          "acceptance": [
+            "One juice seam: a grep-able static check plus a test-level guard prove NO code outside JuiceController writes Time.timeScale or the gameplay camera transform - freestanding time-scale write = blocker.",
+            "Juice observable in play: hitstop on big impacts, slow-mo on catches/splats/deaths, camera shake amplitude-limited, time-decayed, and max-clamped on bean geysers, confetti pooled on quota save, and Squash(land) on every rigged body, cross-read with Artifact 7's deformation review (gate criterion: squash on every land).",
+            "Zero per-frame allocation: JuiceController, the replay path, and the confetti pool allocate zero per frame (pooled everything) - /sim or profiler evidence; performance regression = blocker (60fps, 4 players).",
+            "Blender art acceptance for this slice: Confetti authored via the Blender bpy pipeline (headless blender -b -P, parameterized, .glb export, manifest-validated: required-name list, <=35,000 total triangles, origins grounded y=0, per-submesh material indices) - pooled candy-gloss tile, warm candy palette.",
+            "Spec: .scratch/kwafee/specs/08-juice-delivery-spec.md"
+          ],
+          "blocked_by": ["PREV_CHILD"]
+        },
+        {
+          "title": "Run the ceremony: awards, tabloid, and five joke upgrades, never silent",
+          "what_to_build": "After the replay, the ceremony plays out: exactly five awards (Top Tipper / Biggest Culprit / Coffee Junkie / Customer Wrecker / Theft of the Night) roasted from real shift stats, a candy tabloid whose headlines name real players and count their actual crimes, and a 15-second upgrades shop selling five pure-joke purchases (Double-Speed Conveyer, The Recliner, Pigeon-Powered Van Turbo, The Liability Bell, Unlock The Shop Cat) that change only visible props - Big Tony sits in The Recliner when he repossesses it - and never the sim. Every segment (replay, awards, tabloid, shop, quota save) opens with a Big Vinny banner + sting (TTS-when-available, styled text-banner + sting fallback, global mute toggle) so no beat is silent; all copy lives in one Boston-voice line-table asset, and the Podium, Recliner, Bell, and PigeonTurbo meshes ship through the art pipeline.",
+          "acceptance": [
+            "Awards: exactly 5, each stat-derived from real shift numbers with a table roast, asserted with the fixed-set check; tabloid headlines reference actual shift data (real player names, real counts) - fabricated or static-generic copy fails the gate.",
+            "Upgrades: all 5 present and provably zero-effect - /sim runs the same scripted shift with and without every purchase toggled and sim numbers are unchanged; each purchase is one visible prop change + one Vinny line + one tabloid headline from the line-table asset; Unlock The Shop Cat is the line-as-mechanic joke; purchases dress the following shift and clear when the next shop opens.",
+            "No silent state: every round segment transition (replay, awards, tabloid, shop, quota save) fires its Vinny banner + sting (TTS-or-fallback) before advancing, governed by the mute toggle - segment-sequence test; any silent segment = blocker.",
+            "Boston voice pass: every line in the single line-table asset is Boston-voice (kehd, wicked, pahk the cah), mechanically reviewable in one file sweep; any line that could be from any city = blocker.",
+            "Blender art acceptance for this slice: Podium, Recliner, Bell, and PigeonTurbo (extending The Mule van script, which also carries the dent-grows-every-shift rule) authored via the Blender bpy pipeline (headless blender -b -P, parameterized, .glb export, manifest-validated: required-name list, <=35,000 total triangles, origins grounded y=0, per-submesh material indices); Shop Cat and Double-Speed Conveyer reuse existing assets with copy-only dressing; tabloid, award cards, and shop UI are code/SVG only.",
+            "Spec: .scratch/kwafee/specs/08-juice-delivery-spec.md"
+          ],
+          "blocked_by": ["PREV_CHILD"]
+        }
+      ]
+    },
+    {
+      "artifact_slug": "09-music-audio",
+      "parent_id": "kwaffee-tbw",
+      "children": [
+        {
+          "title": "Synthesize every cue to WAV at build time",
+          "what_to_build": "A build-time stdlib-Python script renders every sound in the 30-cue table - the hummable 4-bar loop (A minor, 96 BPM), the heat layer, and all one-shots with 1-3 baked pitch/velocity variants - from oscillators into WAVs, with zero external samples: the Shop Cat meow family is parametric FM carrier + modulator sweep per cat state, and the machine death rattle varies per death. The same fixed seed makes builds byte-identical, and automated scans prove the whole library is non-silent, non-clipping, and auditionable on disk.",
+          "acceptance": [
+            "All 30 cues in the cue-to-event table exist as manifest-validated baked WAVs; the build is byte-reproducible (same seed -> identical hash, hash-gated).",
+            "WAV scan passes: every cue non-zero RMS above floor (no accidental silent render), peak <= -1 dBFS, DC offset <= 0.001, and loop seams continuous (first/last sample within 0.001 after crossfade - no loop click); loudness bands Music -14 +/-2 LUFS and SFX -18 +/-2.",
+            "No stock audio: build script asserts zero external file references; meow/purr/hiss are constructed from oscillators and filtered noise in the synthesis script (no embedded audio), 3 baked variants for the cat and 1-3 pitch/velocity variants per other one-shot so nothing repeats identically.",
+            "Spec: .scratch/kwafee/specs/09-music-audio-spec.md"
+          ],
+          "blocked_by": ["LAST_CHILD:08-juice-delivery"]
+        },
+        {
+          "title": "Run the mix: pools, ducking, heat, and WebGL-safe playback",
+          "what_to_build": "An AudioManager behind the GameEvents bus maps every game event to its non-silent cue through one lookup table, plays one-shots through 8 pooled AudioSources and the loop + heat through 2 music sources with zero per-frame allocation; a 3-bus mixer (Music / SFX / Voice) ducks SFX and heat at least 6 dB under Big Vinny's narration and fades the heat layer in with the chaos meter - felt, not noticed. A mute toggle plus per-bus volume controls give the table power, audio unlocks on first player input so the WebGL build is never silently blocked by autoplay, the Catastrophe Replay re-pitches the heat layer down and low-passes it, and The Mule drive gets its own looping engine bed.",
+          "acceptance": [
+            "No-silent coverage: every GameEvent enum value and every round phase (Lobby/Open/Shift/Replay/Awards/Tabloid) maps to >=1 non-silent cue with no orphan cues - EditMode coverage test passes.",
+            "Heat felt not noticed: chaos=1 heat adds <= +6 dB over chaos=0 Music RMS and never exceeds loop loudness; crossfade slew >= 2 s with no step > 1 dB/100 ms - numeric EditMode checks; the human card reports heat not annoying.",
+            "Ducking: Big Vinny narration start ducks SFX + heat >= 6 dB within 250 ms and restores within 500 ms of narration end.",
+            "WebGL-safe + no stock audio: all clips Decompress-On-Load, uncompressed PCM, no streaming; audio unlocked on first player input; zero project AudioClips outside the audio manifest (Editor scan - the no-stock-audio blocker is automatic).",
+            "Performance: zero per-frame allocations in the audio path (8 pre-created one-shot sources + 2 music sources, round-robin with lowest-priority steal); audio CPU < 1 ms/frame at max chaos, measured via Profiler in authorized Play Mode.",
+            "Spec: .scratch/kwafee/specs/09-music-audio-spec.md"
+          ],
+          "blocked_by": ["PREV_CHILD"]
+        }
+      ]
+    },
+    {
+      "artifact_slug": "10-multiplayer",
+      "parent_id": "kwaffee-7xn",
+      "children": [
+        {
+          "title": "Turn the shift seam into the authoritative headless server",
+          "what_to_build": "One headless server process hosts many rooms as a dictionary of per-room Shift instances keyed by room code - a room factory that spawns fresh pooled state and never deep-copies a live scene - and runs the ONLY world sim at a pinned 30Hz fixed step. The /sim harness drives the exact same Shift.Step at the same 30Hz, so bots and remote players are indistinguishable Command producers and server Metrics can be byte-compared with the harness; per-entity poses flow out of Metrics for serialization, per-room snapshot buffers stay isolated, and a server-side room registry issues codes and session tokens with create/join/leave already round-tripping on loopback.",
+          "acceptance": [
+            "Seam parity: /sim and the server call the same Shift.Step at the same pinned 30Hz; a remote player and a /sim bot issuing identical Command sequences are indistinguishable to the server - the /sim numbers equal the netcode world.",
+            "Server is the only world sim: one Shift instance per room, instantiated fresh from (seed, actors), never copied from a live scene; clients run no world RNG and render snapshots only.",
+            "WorldState snapshot: Metrics exposes per-entity pose, carry ID, and flags for serialization alongside the existing stats - the snapshot source the transport serializes.",
+            "Per-room isolation: two rooms on one server do not share snapshot buffers - explicit test target asserting no cross-room GC or race symptom.",
+            "Create/join/leave room-code round-trip < 100 ms on loopback with the server-side registry issuing session tokens.",
+            "Spec: .scratch/kwafee/specs/10-multiplayer-spec.md"
+          ],
+          "blocked_by": ["kwaffee-6id", "LAST_CHILD:09-music-audio"]
+        },
+        {
+          "title": "Predict, interpolate, and reconcile at 60fps over one WebSocket path",
+          "what_to_build": "One WebSocket transport (UTP WebSocketNetworkInterface) carries both client and server roles on desktop and browser; your own input feels instant because the client predicts only its own barista and held/freshly-flung objects through the same Command seam, while remote friends, the NPC cast, and free cups render from a 2-snapshot interpolation buffer at 60fps. When the server disagrees, small position and rotation errors blend in over about 100 ms, discrete comedy verdicts hard-snap immediately to the server's answer, and server-broadcast events (roasts, awards, chaos, catastrophe triggers) render locally - never re-derived; a minimal status line shows ping, jitter, loss, and players.",
+          "acceptance": [
+            "Prediction latency: local input -> visible response <= 1 server tick + 1 render frame; reconcile threshold 0.25 m / 15 degrees / any carry-ID or verb-result flip; positions blend <= 100 ms, discrete verdicts hard-snap - no teleport from ordinary latency jitter.",
+            "No visible rubber-banding (headless proxy): under <= 100 ms added latency + <= 10% loss, remote-actor render deviation < 0.5 m and < 200 ms lag; no interpolation gap > 2 server ticks; no render jump > 1 quantized step.",
+            "Single transport: exactly one WebSocket code path (UTP WebSocketNetworkInterface) used by both roles on desktop and WebGL; no UDP, Steam Sockets, WebRTC, or dual path present.",
+            "60fps: 4-bot run over loopback WebSocket renders at < 16.7 ms p95 with 0 bytes GC-allocated per frame in the netcode hot path (reused snapshot byte buffers + pooled lists, no LINQ in the hot path) - Unity Profiler allocator evidence; GC is a blocker.",
+            "Voice/events single-sourced: server broadcasts each event once and clients render banner/sting locally - Big Vinny never desyncs and never gets re-derived.",
+            "Spec: .scratch/kwafee/specs/10-multiplayer-spec.md"
+          ],
+          "blocked_by": ["kwaffee-6id", "PREV_CHILD"]
+        },
+        {
+          "title": "Reconnect, room codes, and the scripted-loss authority gate",
+          "what_to_build": "When your connection drops you reconnect with your session token into the same barista slot within 30 seconds while the Shop Cat mans your station, and resync without rubber-banding; room codes come from a 5-char unambiguous alphabet with collision auto-regeneration. A seeded reliability-interference layer (drop / duplicate / delay at 0/5/10/15/25%) lives inside the transport so the same tests run over real sockets or loopback, proving packet loss can never change the authoritative outcome and every client converges within one quantization step of the server snapshot.",
+          "acceptance": [
+            "Reconnect: a client killed mid-shift reconnects with its token within the 30s window -> state resync < 1s, no rubber-band post-resync, and the Shop Cat covers the slot meanwhile; the slot is freed after the timeout.",
+            "Room codes: create/join/leave round-trip < 100 ms on loopback; 5-char unambiguous alphabet (no 0/O/1/I/L); collisions auto-regenerate.",
+            "Server authority under loss: headless run, same seed, 5 loss levels (0/5/10/15/25%) via the interference layer -> server Metrics byte-identical across levels; every client within 1 quantization step of the server snapshot.",
+            "Loss layer is part of the transport: seeded drop/duplicate/delay by configurable % runs the same tests over real sockets or loopback; per-room pooled-buffer isolation re-asserted across rooms on one server.",
+            "Spec: .scratch/kwafee/specs/10-multiplayer-spec.md"
+          ],
+          "blocked_by": ["kwaffee-6id", "PREV_CHILD"]
+        }
+      ]
+    },
+    {
+      "artifact_slug": "11-lobby-onboarding",
+      "parent_id": "kwaffee-vau",
+      "children": [
+        {
+          "title": "Script five funny tutorial beats on one screen",
+          "what_to_build": "Landing in the room you are already holding a wobbling cup, facing Danny the Regular whose bubble reads FLING ME MY KWA FEE. HURRY. - your first FLING, at any release timing, scripts a face-splat with squash, splash, crossed googly eyes, a slow-mo micro-replay, and a Big Vinny banner; if you freeze for 8 seconds the Shop Cat bats the cup into Danny's face so the game is funny with zero input. Four more scripted beats teach CHUG (jitter ragdoll), STEAL (rob the cat), FIX (wrench clatter), and SABOTAGE (steam yelp), each a deterministic funny outcome composed from existing prefabs and verb rules with no new simulation code; the first-shift flag short-circuits the script for returning players, who land ready.",
+          "acceptance": [
+            "First action funny by construction: ANY first FLING completes the scripted face-splat + slow-mo micro-replay + Vinny line (banner + TTS); no input within 8s -> the Shop Cat performs beat 1 and it completes (sim-tested); zero instruction text anywhere.",
+            "Five verbs, one screen: 5 scripted deterministic beats (FLING/CHUG/STEAL/FIX/SABOTAGE), each first use yielding its scripted funny outcome - sim asserts the outcome flags fire with no randomness (outcome is a function of the beat, not the seed); bubbles are in-world speech, one live at a time.",
+            "Tutorial <= 60s from first input (mean of 3 recorded runs with timestamp logs in evidence); returning players (first-shift flag set) spawn in the ready room with the script short-circuited.",
+            "DRY composition: the tutorial composes existing Barista/Cup/Customer/Counter/Machine/Cat prefabs and existing verb rules - review asserts zero new simulation paths live in the tutorial module.",
+            "No silent audio state in the one-screen flow; all cues ride Artifact 9's stings (splat, cat outrage, steam hiss, wrench clatter, Vinny).",
+            "Spec: .scratch/kwafee/specs/11-lobby-onboarding-spec.md"
+          ],
+          "blocked_by": ["LAST_CHILD:10-multiplayer"]
+        },
+        {
+          "title": "Invite the room: name chips, code chip, and the one-screen HUD",
+          "what_to_build": "The pre-match room IS the lobby: a primary SEND THE LINK, KEHD button and a giant 4-letter candy code chip invite friends by link or shout, while one chunky GOT THE CODE, KEHD? bar takes a code for voice-only joins - invalid codes draw a Vinny line and a card shake, never a dialog. Your name is one tap on a Boston name chip or the RANDO shuffle (zero typing) and floats above your barista's head beside your googly eyes; exactly one scene exists between URL load and shift-ready, and reloading the URL drops you back in your room. The artifact's human gate - a real fresh player laughing within 60 seconds at a real URL and still playing - runs under the fixed protocol, with desktop local-server runs recorded as staging evidence until the WebGL module lands.",
+          "acceptance": [
+            "One-screen invariant: a session trace shows exactly one scene rendered between URL load and first shift-ready state, zero modal menu screens; lobby, tutorial, and pre-match room are the same screen; returning players land ready.",
+            "Room code: 4-char confusable-free alphabet {A,C,D,E,F,H,J,K,M,N,P,R,T,U,V,W,X,Z}, session-mapped; the URL is primary (first player types nothing); invalid or mis-typed input -> Vinny line + card shake (never a dialog); URL reload rejoins <= 5s (Artifact 10 contract).",
+            "Name pick: >= 12 preset Boston chips + RANDO (which selects a different name than the current one), zero free text, session-persistent, rendered above the barista.",
+            "Candy UI / DRY / perf: all new UI is SVG/code (chunky rounded chips, candy gradients, bounce on focus) with zero new Blender assets (Danny = tinted Customer); 60fps with 4 baristas plus tutorial physics (cat, cup wobble, steam), pooled props, measured frame-time log; all strings Boston-voice - Vinny never compliments; no silent audio state.",
+            "Human gate per protocol: one real fresh player per test, tester says only open it and touches nothing, screen+audio recording and feedback card cited in the evidence log; pass = audible laugh <= 60s from load AND continued engagement past 60s (again again); a second fresh player confirms; failures -> beat redesign + retest with a different fresh player; no fabricated or impersonated human test ever; staging desktop runs are recorded as staging, never as the gate.",
+            "Spec: .scratch/kwafee/specs/11-lobby-onboarding-spec.md"
+          ],
+          "blocked_by": ["PREV_CHILD"]
+        }
+      ]
+    },
+    {
+      "artifact_slug": "12-balance-pacing",
+      "parent_id": "kwaffee-8nh",
+      "children": [
+        {
+          "title": "Campaign harness: run 20 seeded shifts with the role wheel",
+          "what_to_build": "The /sim harness runs a deterministic 20-shift campaign on canonical seeds 1000..1019 with four policy-driven bots whose per-shift role (Server / Saboteur / Thief / Junkie) is a pure function of seed, shift index, and bot id - every verb fires every shift under strict grief variety, and every bot both commits and suffers theft. New counters (per-player theft committed and suffered, quota-met time, cascade count and first-cascade time, downtime seconds, vendetta refusals, NPC latency, fix latency) record into crash-safe per-shift rows the moment each shift finishes, and the campaign persists its seeds, the used KnobSet, and a stable aggregate hash so every run is reproducible.",
+          "acceptance": [
+            "Role wheel: role is a pure function of (seed, shiftIndex, botId) - same triple gives the same role; every bot plays each role >= 4 times over the 20-shift campaign; every shift has >= 1 Thief and >= 1 Saboteur.",
+            "Per-shift verb surface: >= 4 CHUG calls, >= 1 FIX attempt per broken machine while a bot is near, >= 1 STEAL, >= 1 SABOTAGE; no grief style > 50% of that shift's grief events (artifact-2 rule carried); every bot commits and suffers theft over the campaign.",
+            "Counters record and stay cheap: stealsCommittedByPlayer / stealsSufferedByPlayer append to TipLedger and CoreGame.TrySteal; quotaMetTime, downtimeSeconds, cascadeCount / firstCascadeTime, vendettaCount / vendettaTipRefusals, npcLatencyMs, and fixLatency are int/scalar counters - no per-step allocation.",
+            "Crash-safe writes: report rows land as shifts finish (a campaign is never all-or-nothing), writing sim-report.json + sim-report.txt per shift and sim-campaign.json with 20 rows + aggregate + seeds + KnobSet + stable hash of the aggregate section.",
+            "Repro: identical binary + the same 20 seeds gives an identical aggregate hash, verified once and logged as evidence.",
+            "Spec: .scratch/kwafee/specs/12-balance-pacing-spec.md"
+          ],
+          "blocked_by": ["LAST_CHILD:11-lobby-onboarding"]
+        },
+        {
+          "title": "Compute the gate bands: BalanceReport metrics over campaign counters",
+          "what_to_build": "Pure BalanceReport helpers turn the campaign counters into the measured bands that decide balance: downtime fraction (no order AND no cup in play AND no broken machine, with cup-in-flight counting as alive), quota success and close-call classification, the cascade state machine over the machine-health event stream, per-shift Gini and the thief redistribution share of the tip economy, the read-only vendetta burn predicate over the Artifact 6 memory store, NPC latency, and chaos per minute. Each definition is TDD'd with hand-computed table cases, then the aggregate row computes every gateChecks band from counters - no number edited by hand.",
+          "acceptance": [
+            "Definitions proven with deterministic table tests (hand-computed expected values): downtime fraction, close-call classification (missed by <= 2 serves OR met with <= 20 s to spare), cascade state machine (second machine broken while >= 1 already broken, OR a machine broken >= 30 s), per-shift Gini <= 0.30, thief redistribution >= 10% of tips_total.",
+            "Vendetta is read-only over Artifact 6's memory store: >= 2 incidents from the same player within <= 3 shifts -> burn -> vendetta flips within <= 1 s -> tip refusal observable in TipLedger; no scripted flags or fiat - recorded as pending is a blocker, not a skip.",
+            "GateChecks computed in code from counters and asserted against every band: shift length mean in [180, 240]s with zero shifts outside [180, 250]s; campaign-mean downtime < 15% (at most 3 of 20 shifts > 20%); quota success 55-70%; close calls 30-50%; chaos >= 8 events/min; theft >= 90% of shifts with >= 1 steal and >= 60% of shifts with all 4 players theft-involved and every player >= 5 committed and >= 5 suffered; cascades >= 80% of shifts with mean in [1, 3] and firstCascadeTime >= 75 s in >= 80% of shifts; vendetta >= 2 detections each showing >= 1 vendettaTipRefusal; NPC latency median <= 1.0 s and p95 <= 1.5 s with zero unreacted incidents; all 4 players positive tips in >= 80% of shifts.",
+            "The cascade event stream doubles as Artifact 8's replay-moment feed - one shared source of truth for balance evidence and the delivery axis.",
+            "Spec: .scratch/kwafee/specs/12-balance-pacing-spec.md"
+          ],
+          "blocked_by": ["PREV_CHILD"]
+        },
+        {
+          "title": "Sweep the KnobSet and ship the winning defaults",
+          "what_to_build": "A KnobSet injects five pacing knobs (OrderSpawnInterval, CustomerPatience, QuotaTarget, PassiveDegradePerSecond, UseDegradePerCup) without mutating shipped constants - ShiftLength, MaxActiveOrders, ProductionInterval, and BrokenThreshold stay hands-off and are asserted in-band. The sweep tunes one knob at a time in priority order (quota, then spawn, then patience, then degrade), gating each candidate on a reduced 5-seed subset before any full 20-seed run, every tried value lands in the evidence log, and the winning KnobSet becomes the shipped RoundRules and MachineRules defaults, re-validated on the canonical 20-seed campaign with a recorded aggregate hash.",
+          "acceptance": [
+            "Sweep protocol: one knob at a time in priority order quota -> spawn -> patience -> degrade; each candidate is gated on the reduced 5-seed subset before the full 20-seed run; hands-off constants (ShiftLength, MaxActiveOrders, ProductionInterval, BrokenThreshold, move speed, chug/overdose, fling tip formula, NPC patience) are never mutated - asserted in-band during the sweep.",
+            "Honest evidence: every tried value plus its aggregate row lands in the evidence log; the final acceptance run is the full 20-seed campaign with the winning KnobSet and its hash recorded; repro re-verified (identical binary + same 20 seeds -> identical aggregate hash).",
+            "Winning KnobSet becomes the shipped defaults in RoundRules / MachineRules and the full campaign passes all gateChecks bands (the tested acceptance criteria of the prior gate-checks slice) under those defaults.",
+            "Eligibility for RATER: a BUILD-SELF-REVIEW is appended to the evidence log before any RATER spend; RATER receives sim-campaign.json with code-computed gateChecks and the repro line - no expensive-tier review before the campaign row exists.",
+            "Spec: .scratch/kwafee/specs/12-balance-pacing-spec.md"
+          ],
+          "blocked_by": ["PREV_CHILD"]
+        }
+      ]
+    },
+    {
+      "artifact_slug": "13-release-gates",
+      "parent_id": "kwaffee-4k0",
+      "children": [
+        {
+          "title": "Audit the evidence: monotonic, traceable, fabrication-gated",
+          "what_to_build": "A machine-checkable evidence-audit pass over the evidence log that fails loudly as a release blocker: entries monotonic, failures included, every claimed metric traceable to a recorded artifact, and each artifact showing its gate (>= 2 consecutive RATER passes >= 8/10 with 0 blockers and 0 majors). The structural precondition - Beads proving all 12 artifact tickets closed, with the query output committed - and the fabrication gate (each session recording's checksum and seed-matching SimHarness sidecar agreeing on seed; cut footage, missing metrics, or seed mismatch = blocker) are part of the same audit, along with the human-ladder card check.",
+          "acceptance": [
+            "Audit evidence: the evidence log is verified monotonic with failures included, and every claimed metric is traceable to a recorded artifact - any untraceable number reports as a blocker.",
+            "Structural precondition: the Beads query output shows zero open artifact tickets (1-12 all closed) and is committed to the evidence log; any open artifact ticket = blocker (release structurally impossible while one is open).",
+            "Fabrication gate: every session recording carries its checksum and a seed-matching sidecar SimHarness metrics JSON (seed, chaos/min, downtime, shift length, tip economy, theft rate, NPC reaction latency); recording and metrics must agree on seed - mismatch, cut footage, or missing metrics = blocker.",
+            "Human ladder on file: the fresh-player card (URL or LAN link, laughing <= 60s, zero instruction, again again) is present with its feedback card - missing card or no evidence of a real human = blocker.",
+            "Spec: .scratch/kwafee/specs/13-release-gates-spec.md"
+          ],
+          "blocked_by": ["LAST_CHILD:12-balance-pacing"]
+        },
+        {
+          "title": "Run the three-pass RATER protocol over frozen builds",
+          "what_to_build": "Three distinct slow-tier RATER full-session passes, one per session, each counted verdict <= 200 lines with evidence citations judged against one continuous unedited screen capture (checksummed, on-screen FPS counter) plus its seed-matching sidecar - the read-only RATER never plays live. The per-cycle two-review cap binds (two failing full-session reviews on the same approach force a DECISIONS re-read and reapproach, never a waiver), the three passes must be consecutive across >= 3 distinct sessions, at least one pass includes >= 2 real humans, and bots-only sessions cap their Fun, Boston Voice, and NPC Aliveness scores.",
+          "acceptance": [
+            "Three pass entries in the evidence log, each a slow-tier RATER full-session verdict: <= 200 lines, 0 blockers, 0 majors, >= 8/10 on all six dimensions (Fun, Feel, Coherence, Boston Voice, NPC Aliveness, Visual Identity) with cited evidence; any pass not from a slow-tier RATER session = blocker.",
+            "Sessions rule: the three passes span >= 3 distinct sessions (one full-session review per session) and are 3 consecutive passes - a failed full-session pass interleaving between two >= 8 passes = blocker; the 2-review per-cycle cap binds with no waiver and no human waiver of a pass exists.",
+            "Evidence standard per pass: one continuous unedited capture of a complete shift (open -> shift -> catastrophe replay -> awards -> tabloid), checksummed with on-screen FPS counter, plus a seed-agreeing sidecar - missing metrics, cut footage, or seed mismatch = blocker; performance read from the recordings: p95 FPS >= 58 at 4 players, any sustained drop below 60 or GC-storm artifact = blocker.",
+            "Human gate: at least one of the three passes has >= 2 real humans with a recorded composition header; bots-only across all three, or undisclosed bot substitution = blocker; bots-only sessions cannot score above 5 on Fun / Boston Voice / NPC Aliveness.",
+            "Spec: .scratch/kwafee/specs/13-release-gates-spec.md"
+          ],
+          "blocked_by": ["PREV_CHILD"]
+        },
+        {
+          "title": "Freeze, build both targets, and ship the launch note",
+          "what_to_build": "The release checklist's back end: the code freeze holds over the pass window (a replayable git log shows only evidence-log and release-note commits - any gameplay, art, audio, or netcode diff between passes 1 and 3 is a blocker); desktop Build-1 and WebGL Build-2 both produce green runnable artifacts, WebGL as a playable launch URL and desktop as a runnable artifact; a <= 10-line machine-verified launch note with all content slots (title, player count + co-op/grief framing, the five verbs, the serve/quota loop, the Vinny/Boston voice, the replay + awards delivery axis, a world feature like The Mule and the dealers, pacing, platforms, voice sign-off) tops the README. The release set assembles - WebGL URL, desktop artifact + launch script, launch note, final evidence log, human feedback card - before the ticket may move to released.",
+          "acceptance": [
+            "Code freeze holds: a replayable git log shows no gameplay/art/audio/netcode commits between claim and release - any content diff between passes 1 and 3 = blocker; legal commits during the pass window are evidence-log and release-note changes only.",
+            "Both builds green and present: WebGL produces a playable launch URL and desktop produces a runnable artifact, both listed in the release set; a partial release (desktop now, WebGL as a patch) is never claimed.",
+            "Launch note: <= 10 machine-verified lines with all content slots present (title, player count + co-op/grief framing, five verbs, serve/quota loop, Vinny/Boston voice with no compliments, replay + awards delivery, a world feature, pacing, platforms, voice sign-off) - line count over or a missing slot = blocker.",
+            "Release set assembled: WebGL URL, desktop artifact + launch script, README launch note, final evidence log, and human feedback card; status flow open -> claimed -> in_progress (passes 1-3) -> released, never claimed with a sibling artifact ticket open.",
+            "Human prerequisites (Unity Personal license activation, WebGL Build Support module) parked as human prerequisite pending with all non-blocking work completed; batchmode licensing is never retried.",
+            "Spec: .scratch/kwafee/specs/13-release-gates-spec.md"
+          ],
+          "blocked_by": ["PREV_CHILD"]
+        }
+      ]
+    }
+  ]
+}
