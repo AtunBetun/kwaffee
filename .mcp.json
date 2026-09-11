@@ -6,7 +6,7 @@
     },
     "unityMCP": {
       "command": "/Users/albertodesaintmalo/.local/share/mise/installs/uv/0.8.23/uv-aarch64-apple-darwin/uvx",
-      "args": ["--from", "mcpforunityserver", "mcp-for-unity", "--transport", "stdio"]
+      "args": ["--from", "mcpforunityserver", "mcp-for-unity", "--transport", "http", "--http-url", "http://127.0.0.1:8080"]
     }
   }
 }

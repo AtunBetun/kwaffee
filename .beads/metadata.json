@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "kwaffee",
+  "project_id": "a2b401c1-a7fd-47f8-8549-ca0d3ad5cb63"
+}

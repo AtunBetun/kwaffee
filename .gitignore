@@ -27,21 +27,6 @@ crashlytics-build.properties
 .idea/
 .vs/
 .vscode/
-*.csproj
-*.unity
-*.asset
-*.mat
-*.prefab
-*.fbx
-*.blend
-*.png
-*.jpg
-*.jpeg
-*.glb
-*.gltf
-*.wav
-*.mp3
-*.ogg
 
 # VS Code / IDE
 .vscode/
@@ -50,7 +35,7 @@ crashlytics-build.properties
 # OS
 .DS_Store
 
-# Scratch: keep deciders and tickets, drop generated
+# Scratch: keep live documents, drop the rest (tickets live in Beads)
 .scratch/*
 !.scratch/kwafee/
 .scratch/kwafee/*
@@ -58,9 +43,29 @@ crashlytics-build.properties
 !.scratch/kwafee/PROMPT.md
 !.scratch/kwafee/DECISIONS.md
 !.scratch/kwafee/EVIDENCE.md
-!.scratch/kwafee/issues/
-!.scratch/kwafee/issues/
+!.scratch/kwafee/art-preview.png
 
 # Environment
 .env
 .env.local
+
+# KWA FEE is a fully reproducible Unity project: a fresh checkout must carry
+# every asset, scene, generated mesh/material/prefab, and all ProjectSettings
+# (build scenes, render/realtime config, time step). Only Unity's caches and
+# per-user editor state stay ignored (above).
+!kwaffee/
+!kwaffee/Assets/
+!kwaffee/Assets/**
+!kwaffee/Packages/
+!kwaffee/Packages/**
+!kwaffee/ProjectSettings/
+!kwaffee/ProjectSettings/**
+!tools/
+!tools/kwafee/
+!tools/kwafee/**
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+*.db
+.beads-credential-key
+.beads/proxieddb/
