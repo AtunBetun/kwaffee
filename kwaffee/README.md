@@ -48,6 +48,7 @@ gameplay commands and physics as the player at a fixed 50 Hz (matching
 `TimeManager`'s 0.02 s fixed step) and writes metrics to `sim-report.txt` (under `Application.persistentDataPath/kwafee-sim/`).
 See `SimHarness.cs` for the run recipe; it reports chaos events/min, serves,
 tips per player, hits, misses, chugs/overdoses, machine health and backlog,
-and verb tallies. The `/sim` run and the player build remain gated on the
-documented Unity license, WebGL module, and container/VM prerequisites; no
-host Play Mode workaround is used.
+and verb tallies. Run in-editor via Unity MCP (`run_tests`/Play Mode); the
+owner authorized host Play Mode and in-editor SimHarness on 2026-09-10.
+Player builds remain gated on the documented Unity license and WebGL module
+prerequisites.
