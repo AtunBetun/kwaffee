@@ -1,6 +1,9 @@
 using UnityEngine;
 
 namespace KwaFee {
+    // Convex trigger box on the serving counter. Forwarding only: the trigger
+    // event is translated into a SlotId and handed to CoreGame, which routes it
+    // into the Shift seam (Shift.OnServe). No verdict lives here.
     public sealed class ServeZone : MonoBehaviour {
         CoreGame game;
         public void Configure(CoreGame owner) {
@@ -21,6 +24,9 @@ namespace KwaFee {
             }
             existing.isTrigger = true;
         }
-        void OnTriggerEnter(Collider other) { CoffeeCup cup = other.GetComponent<CoffeeCup>(); if (cup != null) game.TryServe(cup); }
+        void OnTriggerEnter(Collider other) {
+            CoffeeCup cup = other.GetComponent<CoffeeCup>();
+            if (cup != null && game != null) game.OnServeZone(cup.SlotId);
+        }
     }
 }
