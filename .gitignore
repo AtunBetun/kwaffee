@@ -43,6 +43,7 @@ crashlytics-build.properties
 !.scratch/kwafee/PROMPT.md
 !.scratch/kwafee/DECISIONS.md
 !.scratch/kwafee/EVIDENCE.md
+!.scratch/kwafee/architecture-spec.md
 !.scratch/kwafee/art-preview.png
 
 # Environment
@@ -69,3 +70,6 @@ crashlytics-build.properties
 *.db
 .beads-credential-key
 .beads/proxieddb/
+
+# Blender autosave backups (derived from bpy scripts)
+*.blend1
