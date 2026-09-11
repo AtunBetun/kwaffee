@@ -45,13 +45,14 @@ for ((i=1; i<=$iterations; i++)); do
   # On a retry, reuse the same ticket (e.g. omp network failure aborted the
   # last run — it stays claimed, and `bd ready` would skip it forever).
   if [ -z "${retry_ticket_id:-}" ]; then
-    ticket=$(bd ready --claim --exclude-type=epic --json 2>/dev/null)
-    ticket_id=$(echo "$ticket" | jq -r '.[0].id // empty' 2>/dev/null)
+    ticket=$(bd ready --exclude-type=epic --json 2>/dev/null) || true
+    ticket_id=$(echo "$ticket" | jq -r '.[0].id // empty' 2>/dev/null) || true
     if [ -z "$ticket_id" ]; then
       echo -e "${GREEN}No ready ticket. All claimable work done.${RESET}"
       exit 0
     fi
-    ticket_title=$(echo "$ticket" | jq -r '.[0].title // empty')
+    ticket_title=$(echo "$ticket" | jq -r '.[0].title // empty') || true
+    bd update "$ticket_id" --claim >/dev/null 2>&1 || true
   else
     ticket_id="$retry_ticket_id"
     ticket_title="$retry_ticket_title"
@@ -93,10 +94,10 @@ for ((i=1; i<=$iterations; i++)); do
      2. Update the spec and $progress_file with what was done.
      3. Commit your changes.
      4. Output ONLY <promise>DONE</promise> when the ticket is complete and committed, or <promise>FAILED</promise> if you cannot finish it." \
-  | tee "$tmp" "$LOGDIR/iter-$i.jsonl"
+  | tee "$tmp" "$LOGDIR/iter-$i.jsonl" | jq -r
   omp_rc=${PIPESTATUS[0]}
 
-  sid=$(jq -r "$SESSION_ID" "$tmp" | head -1)
+  sid=$(jq -r "$SESSION_ID" "$tmp" | head -1) || true
   echo
   echo -e "${DIM}━━━ iter ${i} done ━━━${RESET} ${BOLD}session ${sid}${RESET} ${DIM}(saved ${LOGDIR}/iter-${i}.jsonl)${RESET}"
 
@@ -116,5 +117,6 @@ for ((i=1; i<=$iterations; i++)); do
     continue
   fi
   unset retry_ticket_id retry_ticket_title
+  rm -f "$tmp"
   # No promise: ticket left open for the next iteration.
 done
