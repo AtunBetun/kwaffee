@@ -17,6 +17,7 @@ The studio runs parallel BUILDER sessions (cheap tier) plus occasional RATER rev
 
 ## Consequences
 
+- The same ruling is appended to `.scratch/kwafee/DECISIONS.md` (session memory). BUILDER/RATER sessions resume from DECISIONS.md first, so they see main-only before the using-git-worktrees skill's Step 0 can re-derive worktrees. Do not re-derive branch/worktree setup: this ADR is the answer.
 - Zero branch-merge ceremony; `git log` on `main` is the full history.
 - Any agent touching a file another agent is editing will conflict — ownership discipline is mandatory, tracked via Beads claims.
 - Binary conflicts (`.unity`, `.blend`) are resolved by hand when they do collide; keeping disjoint file ownership makes them rare.
