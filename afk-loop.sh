@@ -46,6 +46,30 @@ LOGDIR=".scratch/kwafee/convos"
 mkdir -p "$LOGDIR"
 
 SESSION_ID='select(.type == "session") | .id // empty'
+
+# Human-readable stream formatter (python3). Prints the agent's prose live —
+# thinking + text deltas inline, tool calls as "⚙ name" lines. Uses json.loads
+# per line (not regex), so escaped quotes (\", \n) and partial/garbage lines
+# can never mangle output or kill the loop. python3 is guaranteed on macOS.
+# RAW NDJSON is still saved by tee to $LOGDIR/iter-N.jsonl; only the terminal
+# view is digested.
+STREAM_READER='import sys, json
+try:
+    for ln in sys.stdin:
+        ln=ln.strip()
+        if not ln or not ln.startswith("{"): continue
+        try: e=json.loads(ln)
+        except Exception: continue
+        if e.get("type")!="message_update": continue
+        a=e.get("assistantMessageEvent",{}) or {}
+        t=a.get("type","")
+        if t in ("thinking_delta","text_delta"):
+            sys.stdout.write(a.get("delta",""))
+        elif t=="toolcall_end":
+            tc=a.get("toolCall",{}) or {}
+            sys.stdout.write("\n\u2699 %s\n" % (tc.get("name") or "tool"))
+except BrokenPipeError:
+    sys.exit(0)'
 TMP_FILES=()
 
 for ((i=1; i<=$iterations; i++)); do
@@ -103,7 +127,7 @@ for ((i=1; i<=$iterations; i++)); do
      2. Update the spec and $progress_file with what was done.
      3. Commit your changes.
      4. Output ONLY <promise>DONE</promise> when the ticket is complete and committed, or <promise>FAILED</promise> if you cannot finish it." \
-  | tee "$tmp" "$LOGDIR/iter-$i.jsonl" | jq -r
+  | tee "$tmp" "$LOGDIR/iter-$i.jsonl" | python3 -c "$STREAM_READER"
   omp_rc=${PIPESTATUS[0]}
 
   sid=$(jq -r "$SESSION_ID" "$tmp" | head -1) || true
