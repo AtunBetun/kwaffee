@@ -1,0 +1,47 @@
+name: Unity CI
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  editmode:
+    name: Unity EditMode Tests (6000.6.0f1)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Cache Unity Library
+        uses: actions/cache@v4
+        with:
+          path: kwaffee/Library
+          key: Library-6000.6.0f1-${{ hashFiles('kwaffee/Assets/**', 'kwaffee/Packages/**', 'kwaffee/ProjectSettings/**') }}
+          restore-keys: |
+            Library-6000.6.0f1-
+
+      - name: Run EditMode tests
+        id: tests
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          projectPath: kwaffee
+          unityVersion: 6000.6.0f1
+          testMode: EditMode
+          coverageEnabled: false
+          artifactsPath: editmode-artifacts
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          checkName: Unity EditMode Tests
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: EditMode test results
+          path: ${{ steps.tests.outputs.artifactsPath }}
+          if-no-files-found: warn
